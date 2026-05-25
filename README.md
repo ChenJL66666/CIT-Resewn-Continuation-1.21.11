@@ -6,51 +6,56 @@
   <a href="https://modrinth.com/mod/cit-resewn-continuation"><img src="https://img.shields.io/badge/Modrinth-CIT%20Resewn%20Continuation-00AF5C?logo=modrinth&logoColor=white" alt="Download on Modrinth"></a>
 </p>
 
-CIT Resewn Continuation is an unofficial community fork of CIT Resewn aimed at keeping the mod working on newer Fabric and Minecraft versions.
+# CIT Resewn Continuation
 
-The main module serves as an API to add types and conditions while the Defaults module provides the standard CIT behavior used by most packs.
+CIT Resewn Continuation is an unofficial community fork of CIT Resewn. It keeps MCPatcher and OptiFine-style Custom Item Texture support available on newer Minecraft versions without requiring OptiFine.
 
-Fork repository: https://github.com/EthanVisagie/CIT-Resewn-Continuation
+The main module provides the CIT API. The Defaults module provides the standard CIT behavior used by most resource packs.
 
-## Status
+## Supported Versions
 
-This fork currently targets Minecraft 1.21.11 on Fabric.
+Current continuation builds are published for modern Minecraft versions, including `1.21.10`, `1.21.11`, and `26.1.x` builds where available.
 
-Current state:
-- base mod and defaults build successfully
-- item model CITs work
-- common texture-only item CITs work
-- armor CITs work
-- elytra CITs work
-- enchantment CITs have a first 1.21.11 implementation
+Supported loaders depend on the release file. Use the jar that matches your Minecraft version and loader.
 
-Testing:
-Tested against TooManyRenamesV19.9 and confirmed working with Fabulously Optimized including Complementary Reimagined shaders.
+Recent work in this fork includes:
 
-## Downloads
-
-Download release artifacts from the fork repository releases page:
-
-https://github.com/EthanVisagie/CIT-Resewn-Continuation/releases
-
-For Minecraft `1.21.11`, install the main jar:
-- `citresewn-continuation-1.2.2-fork.3+1.21.11.jar`
-
-The defaults module is bundled inside the main jar as a nested Fabric jar. You do not need to install the defaults jar separately.
+- Minecraft `1.21.11` support
+- Minecraft `26.1.x` support
+- Fabric and NeoForge continuation builds where available
+- item model CIT fixes
+- common texture-only item CIT fixes
+- armor CIT support
+- elytra CIT support
+- enchantment glint CIT work
+- relative texture path fixes
+- trident throwing CIT model override fixes
 
 ## Installation
 
-1. Install Fabric Loader for Minecraft `1.21.11`.
-2. Put `citresewn-continuation-1.2.2-fork.3+1.21.11.jar` in your `mods` folder.
-3. Launch the game once.
-4. Put any CIT-compatible resource pack in `resourcepacks`.
-5. Enable the resource pack in-game.
+1. Install the loader required by the release file.
+2. Install Fabric API or the loader dependencies required by your modpack when applicable.
+3. Put the CIT Resewn Continuation jar in your `mods` folder.
+4. Launch the game once.
+5. Put any CIT-compatible resource pack in `resourcepacks`.
+6. Enable the resource pack in-game.
+
+The defaults module is bundled inside the main jar when the release is built that way. Do not install a separate defaults jar unless the release notes explicitly tell you to.
+
+## Downloads
+
+Download approved builds from Modrinth:
+
+https://modrinth.com/mod/cit-resewn-continuation
+
+Development artifacts may also be available from this repository's GitHub releases page.
 
 ## Pack Compatibility
 
-This fork is intended to keep existing CIT Resewn and OptiFine-style CIT packs usable on Fabric 1.21.11.
+This fork is intended to keep existing CIT Resewn and OptiFine-style CIT packs usable on modern loader-based Minecraft installations.
 
-Known working areas in this fork:
+Known working areas include:
+
 - item model CITs
 - common texture-only item CITs
 - armor CITs
@@ -58,26 +63,43 @@ Known working areas in this fork:
 - first-pass enchantment glint CITs
 
 Known limits:
-- some edge-case OptiFine CIT properties are still incomplete.
+
+- some edge-case OptiFine CIT properties are still incomplete
+- behavior can vary by loader branch and Minecraft version
+- shader and renderer combinations should be tested before using a build in a public modpack
 
 ## Testing
 
-For broader validation, test against:
-- `TooManyRenamesV19.9.zip`
-- other enchantment-heavy CIT packs
+Useful validation packs and setups include:
 
-If you hit a broken model, missing texture, or startup crash, open an issue and include `latest.log` or the crash report.
+- TooManyRenames
+- enchantment-heavy CIT packs
+- Fabulously Optimized
+- shader setups such as Complementary Reimagined
+
+If you hit a broken model, missing texture, incorrect CIT match, or startup crash, open an issue and include:
+
+- Minecraft version
+- loader and loader version
+- CIT Resewn Continuation version
+- resource pack name and version
+- the relevant `.properties` file when possible
+- `latest.log` or the crash report
 
 ## CIT Docs
 
-Most existing CIT Resewn pack and API docs still apply. The original docs site is at https://citresewn.shcm.io
+Most existing CIT Resewn pack and API docs still apply. The original docs site is available at:
+
+https://citresewn.shcm.io
 
 ## API
 
-The API surface is still based on the original CIT Resewn project. If this fork is published to a Maven repository later, the coordinates and examples should be updated to match the fork project.
+The API surface is still based on the original CIT Resewn project. If this fork is published to a Maven repository later, dependency coordinates and examples should be updated here to match the continuation project.
 
 ## Contributing
 
-Bug fixes and feature implementations are welcome once verified.
+Bug fixes, porting fixes, pack compatibility fixes, and small verified behavior improvements are welcome.
 
-The original docs site is also open source, and the upstream docs branch remains a useful reference point for pack behavior and API expectations.
+## Credits
+
+CIT Resewn was originally created by SHsuperCM. This continuation keeps the project usable on newer Minecraft versions while preserving the original credits and license terms.
