@@ -49,16 +49,19 @@ public abstract class ItemModelManagerMixin {
 
     @Inject(method = "update", at = @At("HEAD"), cancellable = true)
     private void citresewn$update(ItemRenderState renderState, ItemStack stack, ItemDisplayContext displayContext, World world, LivingEntity entity, int seed, CallbackInfo ci) {
-        CITContext context = new CITContext(stack, world, entity);
-        if (TypeEnchantment.CONTAINER.active() && TypeEnchantment.hasEnchantments(stack))
+        // one context for both the enchantment pass and the item model pass; it only gets built when a CIT
+        // type is actually active, so plain vanilla items no longer pay for a context they never use
+        CITContext context = null;
+        if (TypeEnchantment.CONTAINER.active() && TypeEnchantment.hasEnchantments(stack)) {
+            context = new CITContext(stack, world, entity);
             ((TypeEnchantment.CITEnchantmentRenderState) renderState).citresewn$setTypeEnchantments(TypeEnchantment.CONTAINER.getCITs(context));
-        else
+        } else
             ((TypeEnchantment.CITEnchantmentRenderState) renderState).citresewn$setTypeEnchantments(java.util.List.of());
 
         if (!citresewn$canFallthrough(renderState))
             return;
 
-        Identifier identifier = citresewn$getItemModelId(stack, world, entity);
+        Identifier identifier = citresewn$getItemModelId(stack, world, entity, context);
         if (identifier == null)
             return;
 
@@ -84,7 +87,7 @@ public abstract class ItemModelManagerMixin {
 
     @Inject(method = "hasHandAnimationOnSwap", at = @At("HEAD"), cancellable = true)
     private void citresewn$hasHandAnimationOnSwap(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-        Identifier identifier = citresewn$getItemModelId(stack, null, null);
+        Identifier identifier = citresewn$getItemModelId(stack, null, null, null);
         if (identifier == null)
             return;
 
@@ -94,19 +97,18 @@ public abstract class ItemModelManagerMixin {
     }
 
     /**
+     * @param context reusable context for {@code stack}, or {@code null} to build one on demand
      * @return the model id this CIT wants the stack rendered with, or {@code null} to leave the
      *         stack entirely to vanilla and any other mod that already owns its model id.
      */
-    private Identifier citresewn$getItemModelId(ItemStack stack, World world, LivingEntity entity) {
+    private Identifier citresewn$getItemModelId(ItemStack stack, World world, LivingEntity entity, CITContext context) {
         if (!citresewn$canReplaceItemModel(stack))
             return null;
 
-        CIT<TypeItem> cit = null;
-        if (CONTAINER.active()) {
-            CITContext context = new CITContext(stack, world, entity);
-            cit = CONTAINER.getCIT(context);
-        }
+        if (!CONTAINER.active())
+            return null;
 
+        CIT<TypeItem> cit = CONTAINER.getCIT(context != null ? context : new CITContext(stack, world, entity));
         if (cit == null)
             return null;
 

@@ -121,7 +121,7 @@ public class ConditionComponents extends CITCondition {
 
     /*? >=1.21 {*/
     private boolean testLegacyCustomModelData(CITContext context) {
-        Object stackComponent = context.stack.getComponents().get(DataComponentTypes.CUSTOM_MODEL_DATA);
+        Object stackComponent = context.components().get(DataComponentTypes.CUSTOM_MODEL_DATA);
         if (!(stackComponent instanceof CustomModelDataComponent customModelData))
             return false;
 
@@ -141,7 +141,7 @@ public class ConditionComponents extends CITCondition {
     }
 
     private boolean testComponent(CITContext context, ComponentType<?> componentType) {
-        Object stackComponent = context.stack.getComponents().get(componentType);
+        Object stackComponent = context.components().get(componentType);
         if (stackComponent == null)
             return false;
 
@@ -159,8 +159,43 @@ public class ConditionComponents extends CITCondition {
             //todo avoid nbt based check if possible
         }*/
 
-        NbtElement fallbackComponentNBT = ((ComponentType<Object>) componentType).getCodec().encodeStart(context.world.getRegistryManager().getOps(NbtOps.INSTANCE), stackComponent).getOrThrow();
+        NbtElement fallbackComponentNBT = context.getComponentNbt(componentType,
+                () -> ((ComponentType<Object>) componentType).getCodec()
+                        .encodeStart(context.world.getRegistryManager().getOps(NbtOps.INSTANCE), stackComponent)
+                        .getOrThrow());
         return this.fallbackNBTCheck.testPath(fallbackComponentNBT, 0, context);
+    }
+
+    /**
+     * Describes this condition as a "the stack's custom_data must contain this exact string somewhere"
+     * lookup, which is all {@code TypeItem.Container} needs to bucket rules by their expected value.
+     *
+     * @return the exact string this condition requires, or {@code null} if it can only be tested the slow way
+     */
+    public String directCustomDataValue() {
+        if (this.componentType != DataComponentTypes.CUSTOM_DATA || this.fallbackComponentType != null)
+            return null;
+
+        ConditionNBT check = this.fallbackNBTCheck;
+        if (check == null || !(check.matchString instanceof ConditionNBT.StringMatcher.DirectMatcher matcher))
+            return null;
+
+        // A value that also parses as a number can match a numeric NBT tag, which the index only fills with
+        // string leaves, so those rules have to stay on the slow path.
+        if (check.matchInteger != null || check.matchByte != null || check.matchFloat != null
+                || check.matchDouble != null || check.matchLong != null || check.matchShort != null)
+            return null;
+
+        // A compound/list literal can match a compound/list tag. Plain words are *also* parsed into an
+        // NbtString by StringNbtReader (verified: read("RANDOM_HELMET") -> NbtString), and an NbtString
+        // matchElement is never consulted by testValue, so it must not disqualify the rule.
+        if (check.matchElement instanceof net.minecraft.nbt.NbtCompound
+                || check.matchElement instanceof net.minecraft.nbt.NbtList)
+            return null;
+
+        // the matcher's own pattern, not the raw property value: "regex:<literal>" ends up here as a plain
+        // DirectMatcher too, with the prefix already stripped
+        return matcher.pattern;
     }
     /*?}*/
 }
